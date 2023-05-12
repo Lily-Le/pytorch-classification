@@ -65,6 +65,7 @@ from .alexnet import *
 from .vgg import *
 from .resnet import *
 from .resnext import *
+from .resnet_loc import *
 from .wrn import *
 from .preresnet import *
 from .densenet import *

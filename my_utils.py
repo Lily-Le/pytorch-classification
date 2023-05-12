@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import torchvision
-
+import sys
 def feature_imshow(inp, title=None):
     """Imshow for Tensor.
     Reference: https: // www.zhihu.com / question / 68384370 / answer / 812588336
@@ -24,6 +24,20 @@ def feature_imshow(inp, title=None):
 
     plt.pause(0.001)  # pause a bit so that plots are updated
     plt.savefig(title)
+
+
+class MyLogger(object):
+    def __init__(self, filename='default.log', stream=sys.stdout):
+        self.terminal = stream
+        self.log = open(filename, 'a')
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        pass
+
 
 
 
