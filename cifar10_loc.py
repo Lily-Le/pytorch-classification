@@ -206,8 +206,7 @@ def main():
         logger = Logger(os.path.join(args.checkpoint, 'log.txt'), title=title, resume=True)
     else:
         logger = Logger(os.path.join(args.checkpoint, 'log.txt'), title=title)
-        logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
-
+        logger.set_names(['Epoch','Learning Rate', 'losses_train','losses_aux_train','top1_e2e_train','top5_e2e_train','top1_aux_train','top5_aux_train','losses_test','losses_aux_test','top1_e2e_test','top5_e2e_test','top1_aux_test','top5_aux_test'])
 
     if args.evaluate:
         print('\nEvaluation only')
@@ -221,19 +220,19 @@ def main():
 
         print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
 
-        train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch, use_cuda)
-        test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda)
+        losses_train, losses_aux_train,top1_e2e_train,top5_e2e_train,top1_aux_train,top5_aux_train = train(trainloader, model, criterion, optimizer, epoch, use_cuda)
+        losses_test, losses_aux_test,top1_e2e_test,top5_e2e_test,top1_aux_test,top5_aux_test  = test(testloader, model, criterion, epoch, use_cuda)
 
         # append logger file
-        logger.append([state['lr'], train_loss, test_loss, train_acc, test_acc])
+        logger.append([epoch, state['lr'], losses_train, losses_aux_train,top1_e2e_train,top5_e2e_train,top1_aux_train,top5_aux_train,losses_test, losses_aux_test,top1_e2e_test,top5_e2e_test,top1_aux_test,top5_aux_test])
 
         # save model
-        is_best = test_acc > best_acc
-        best_acc = max(test_acc, best_acc)
+        is_best = top1_e2e_test > best_acc
+        best_acc = max(top1_e2e_test, best_acc)
         save_checkpoint({
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
-                'acc': test_acc,
+                'acc': top1_e2e_test,
                 'best_acc': best_acc,
                 'optimizer' : optimizer.state_dict(),
             }, is_best, checkpoint=args.checkpoint)
@@ -309,7 +308,7 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
         top5_aux.update(prec5_aux.item(), inputs.size(0))
         # compute gradient and do SGD step
         optimizer.zero_grad()
-        # loss.backward()
+        loss.backward()
         optimizer.step()
 
         # measure elapsed time
@@ -331,9 +330,23 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
             top1_aux=top1_aux.avg,
             top5_aux=top5_aux.avg,
                     )
+        print('Train ({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Loss_aux: {loss_aux:.4f} |top1_e2e: {top1_e2e: .4f} | top5_e2e: {top5_e2e: .4f} |top1_aux: {top1_aux: .4f} | top5_aux: {top5_aux: .4f}'.format(
+                    batch=batch_idx + 1,
+                    size=len(trainloader),
+                    data=data_time.avg,
+                    bt=batch_time.avg,
+                    total=bar.elapsed_td,
+                    eta=bar.eta_td,
+                    loss=losses.avg,
+                    loss_aux = losses_aux.avg,
+                    top1_e2e=top1_e2e.avg,
+                    top5_e2e=top5_e2e.avg,
+            top1_aux=top1_aux.avg,
+            top5_aux=top5_aux.avg,
+                    ))
         bar.next()
     bar.finish()
-    return (losses.avg, top1_e2e.avg)
+    return (losses.avg, losses_aux.avg,top1_e2e.avg,top5_e2e.avg,top1_aux.avg,top5_aux.avg)
 
 def test(testloader, model, criterion, epoch, use_cuda):
     global best_acc
@@ -400,8 +413,22 @@ def test(testloader, model, criterion, epoch, use_cuda):
             top5_aux=top5_aux.avg,
         )
         bar.next()
+        print('Test ({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Loss_aux: {loss_aux:.4f} |top1_e2e: {top1_e2e: .4f} | top5_e2e: {top5_e2e: .4f} |top1_aux: {top1_aux: .4f} | top5_aux: {top5_aux: .4f}'.format(
+                    batch=batch_idx + 1,
+                    size=len(testloader),
+                    data=data_time.avg,
+                    bt=batch_time.avg,
+                    total=bar.elapsed_td,
+                    eta=bar.eta_td,
+            loss=losses.avg,
+            loss_aux=losses_aux.avg,
+            top1_e2e=top1_e2e.avg,
+            top5_e2e=top5_e2e.avg,
+            top1_aux=top1_aux.avg,
+            top5_aux=top5_aux.avg,
+        ))
     bar.finish()
-    return (losses.avg, top1_e2e.avg)
+    return (losses.avg, losses_aux.avg,top1_e2e.avg,top5_e2e.avg,top1_aux.avg,top5_aux.avg)
 
 def save_checkpoint(state, is_best, checkpoint='checkpoint', filename='checkpoint.pth.tar'):
     filepath = os.path.join(checkpoint, filename)

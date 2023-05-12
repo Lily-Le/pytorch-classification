@@ -240,8 +240,8 @@ class ResNet_aux(nn.Module):
             assert len(loss_ixy)==1, f'shape of loss_ixy is {len(loss_ixy)}'
 
             loss = loss_e2e + self.aux_ratio * loss_ixy[0]
-            if self.training:
-                loss.backward()
+            # if self.training:
+            #     loss.backward()
             return logits, aux_features[0],loss_e2e,loss_ixy[0],loss
 
         # else:
