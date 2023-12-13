@@ -1,0 +1,136 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: wrs_layer",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env":{"CUDA_VISIBLE_DEVICES":"1"},
+            "args":[
+                "-a",
+                "wrn_layer",
+                "--dataset",
+                "cifar10",
+                "--depth",
+                "28",
+                "--widen-factor",
+                "10",
+                "--epochs",
+                "164",
+                "--schedule",
+                "81",
+                "122",
+                "--gamma",
+                "0.1",
+                "--wd",
+                "1e-4",
+                "--checkpoint",
+                "checkpoints/cifar10/wrs-28x10-layer",               
+            ]
+        },
+        {
+            "name": "Python: cifar10c_group",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "cifar_c.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/cifar_c.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-a",
+                "resnet",
+                "--dataset",
+                "cifar10c",
+                "--depth",
+                "110",
+                "--epochs",
+                "164",
+                "--schedule",
+                "81",
+                "122",
+                "--gamma",
+                "0.1",
+                "--wd",
+                "1e-4",
+                "--checkpoint",
+                "checkpoints/cifar10c/resnet-110",
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "3"
+            }
+        },
+        {
+            "name": "cifar_continue.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/cifar_continue.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-a",
+                "resnet",
+                "--dataset",
+                "cifar10c",
+                "--depth",
+                "56",
+                "--epochs",
+                "164",
+                "--schedule",
+                "81",
+                "122",
+                "--gamma",
+                "0.1",
+                "--wd",
+                "1e-4",
+                "--checkpoint",
+                "checkpoints/cifar10/resnet-56",
+                "--resume",
+                "checkpoints/cifar10/resnet-56/lr0.1/epoch10.pth.tar",
+                "--corruption_type",
+                "gaussian_noise"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "cifar.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/cifar.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-a",
+                "cornet_s",
+                "--epochs",
+                "164",
+                "--schedule",
+                "81",
+                "122",
+                "--gamma",
+                "0.1",
+                "--wd",
+                "1e-4",
+                "--checkpoint",
+                "checkpoints/cifar10/cornet_s"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+    ]
+}

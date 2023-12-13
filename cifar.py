@@ -19,15 +19,20 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import models.cifar as models
+import  models.cornet as cornet
 
 from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig
 from tqdm import tqdm
 from my_utils import *
 
 
-model_names = sorted(name for name in models.__dict__
+model_names = sorted([name for name in models.__dict__
     if name.islower() and not name.startswith("__")
-    and callable(models.__dict__[name]))
+    and callable(models.__dict__[name])] + 
+        [name for name in cornet.__dict__
+    if name.islower() and not name.startswith("__")
+    and callable(cornet.__dict__[name])]
+                     )
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10/100 Training')
 # Datasets
@@ -139,7 +144,9 @@ def main():
 
     # Model
     print("==> creating model '{}'".format(args.arch))
-    if args.arch.startswith('resnext'):
+    if args.arch.startswith('cornet'):
+        model = cornet.__dict__[args.arch](num_classes=num_classes)
+    elif args.arch.startswith('resnext'):
         model = models.__dict__[args.arch](
                     cardinality=args.cardinality,
                     num_classes=num_classes,
@@ -224,13 +231,13 @@ def main():
                 'optimizer' : optimizer.state_dict(),
             }, is_best, checkpoint=args.checkpoint)
 
-        if (epoch % args.log_interval ==0):
-            ind_=0
-            for fm in model.module.featuremaps:
-                fn=args.checkpoint+f'/featuremaps/epoch{epoch}_ly{ind_}.png'
-                out = torchvision.utils.make_grid(fm)
-                feature_imshow(out,fn)
-                ind_+=1
+        # if (epoch % args.log_interval ==0):
+        #     ind_=0
+        #     for fm in model.module.featuremaps:
+        #         fn=args.checkpoint+f'/featuremaps/epoch{epoch}_ly{ind_}.png'
+        #         out = torchvision.utils.make_grid(fm)
+        #         feature_imshow(out,fn)
+        #         ind_+=1
 
     logger.close()
     logger.plot()

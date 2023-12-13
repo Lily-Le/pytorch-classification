@@ -9,3 +9,6 @@ python cifar10_loc.py -a resnet_loc --depth 110 --epochs 164 --ratio 0.5 --sched
 python cifar10_loc.py -a resnet_loc --depth 110 --epochs 164 --ratio 2 --schedule 81 122 --gamma 0.1 --wd 1e-4 --checkpoint checkpoints/cifar10/resnet-110-loc
 
 CUDA_VISIBLE_DEVICES=1 python cifar10_loc.py -a resnet_loc --depth 110 --epochs 164 --ratio 0.2 --schedule 81 122 --gamma 0.1 --wd 1e-4 --checkpoint checkpoints/cifar10/resnet-110-loc --gpu-id 1
+
+
+python cifar.py -a cornet_s  --epochs 164 --schedule 81 122 --gamma 0.1 --wd 1e-4 --checkpoint checkpoints/cifar10/cornet_s
